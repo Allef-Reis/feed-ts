@@ -1,18 +1,21 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable react/prop-types */
+import { useState } from 'react'
 import { ThumbsUp, Trash } from 'phosphor-react'
-import styles from './Comment.module.css'
+
 import { Avatar } from './Avatar'
 
-import { useState } from 'react'
+import styles from './Comment.module.css'
 
+interface CommentProps {
+    content: string,
+    onDeleteComment: (comment: string) => void
+}
 
-export function Comment({ content, onDeleComment }) {
+export function Comment({ content, onDeleteComment }: CommentProps) {
 
     const [linkCount, setLikeCount] = useState(0);
 
     function handleDeleComment() {
-        onDeleComment(content)
+        onDeleteComment(content)
     }
     function handleLikeComment() {
         // setLikeCount(linkCount + 1)
@@ -32,7 +35,7 @@ export function Comment({ content, onDeleComment }) {
                             <time title='Publicado em 6 de julho de 2022' dateTime='2022-07-06 18:21:00'>Cerca de 1h atrás</time>
                         </div>
                         <button title='Deletar Comentário'>
-                            <Trash size={24} title='Deletar Comentário' onClick={handleDeleComment} />
+                            <Trash size={24} alt='Deletar Comentário' onClick={handleDeleComment} />
                         </button>
                     </header>
                     <p> {content}</p>

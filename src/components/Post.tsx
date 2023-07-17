@@ -1,5 +1,4 @@
-/* eslint-disable react/prop-types */
-import { useState } from 'react'
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
 import { format, formatDistanceToNow } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
@@ -8,29 +7,48 @@ import { Comment } from './Comment'
 
 import styles from './Post.module.css'
 
-export function Post({ author, publishedAt, content }) {
+interface Author {
+    name: string,
+    role: string,
+    avatarURL: string
+}
+interface Content {
+    type: 'paragraph' | 'link',
+    content: string
+}
+export interface PostType {
+    id: string,
+    author: Author,
+    publishedAt: Date,
+    content: Content[]
+}
+interface PostProps {
+    post: PostType
+}
+
+export function Post({ post }: PostProps) {
 
     const [comments, setComments] = useState(['first post, tá ok?!!'])
     const [newComments, setNewComments] = useState('')
 
-    const publishedDateFormatted = format(publishedAt, "d 'de' LLLL 'às' HH'h'mm", { locale: ptBR });
-    const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, { locale: ptBR, addSuffix: true });
+    const publishedDateFormatted = format(post.publishedAt, "d 'de' LLLL 'às' HH'h'mm", { locale: ptBR });
+    const publishedDateRelativeToNow = formatDistanceToNow(post.publishedAt, { locale: ptBR, addSuffix: true });
     const isNewCommentEmpty = newComments.length === 0;
 
-    function handleDeleCommentNewCommentChange() {
-        event.target.setCustomValidity('')
-        setNewComments(event.target.value)
-    }
-    function handleNewCommentInvalid() {
-        event.target.setCustomValidity('Campo obrigatório')
-    }
-    function createNewComment() {
+    function handleCreateNewComment(event: FormEvent) {
         event.preventDefault()
 
         setComments([...comments, newComments])
         setNewComments('')
     }
-    function deleComment(commentToDelete) {
+    function handleNewCommentInvalid(event: ChangeEvent<HTMLTextAreaElement>) {
+        event.target.setCustomValidity('Campo obrigatório')
+    }
+    function handleDeleCommentNewCommentChange(event: InvalidEvent<HTMLTextAreaElement>) {
+        event.target.setCustomValidity('')
+        setNewComments(event.target.value)
+    }
+    function deleComment(commentToDelete: string) {
         const commentsWithoutDeletedOne = comments.filter(comment => {
             return comment != commentToDelete
         })
@@ -42,16 +60,16 @@ export function Post({ author, publishedAt, content }) {
         <article className={styles.post}>
             <header>
                 <div className={styles.author}>
-                    <Avatar src={author.avatarURL} />
+                    <Avatar src={post.author.avatarURL} />
                     <div className={styles.authorInfo}>
-                        <strong>{author.name}</strong>
-                        <span>{author.role}</span>
+                        <strong>{post.author.name}</strong>
+                        <span>{post.author.role}</span>
                     </div>
                 </div>
-                <time title={publishedDateFormatted} dateTime={publishedAt.toISOString()}>{publishedDateRelativeToNow} </time>
+                <time title={publishedDateFormatted} dateTime={post.publishedAt.toISOString()}>{publishedDateRelativeToNow} </time>
             </header>
             <div className={styles.content}>
-                {content.map(line => {
+                {post.content.map(line => {
                     if (line.type === 'paragraph') {
                         return <p key={line.content}> {line.content}</p>
                     } else if (line.type === 'link') {
@@ -59,7 +77,7 @@ export function Post({ author, publishedAt, content }) {
                     }
                 })}
             </div>
-            <form onSubmit={createNewComment} className={styles.commentForm}>
+            <form onSubmit={handleCreateNewComment} className={styles.commentForm}>
                 <strong> Deixe seu feedback!</strong>
                 <textarea
                     name='comment'
@@ -71,7 +89,7 @@ export function Post({ author, publishedAt, content }) {
                 />
                 <footer>
                     <button
-                        type='submite'
+                        type='submit'
                         disabled={isNewCommentEmpty}
                     > Publicar</button>
                 </footer>
@@ -82,7 +100,7 @@ export function Post({ author, publishedAt, content }) {
                         <Comment
                             key={comment}
                             content={comment}
-                            onDeleComment={deleComment}
+                            onDeleteComment={deleComment}
                         />
                     )
                 })}
