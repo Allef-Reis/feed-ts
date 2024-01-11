@@ -96,7 +96,7 @@
   max-height: none;
 }
 
-.commentForm button[type="submite"] {
+.commentForm button {
   padding: 1rem 1.5rem;
   margin-top: 1rem;
   border-radius: 8px;
@@ -108,7 +108,7 @@
   transition: background-color 0.1s;
 }
 
-.commentForm button[type="submite"]:not(:disabledhover):hover {
+.commentForm button:not(:disabledhover):hover {
   background-color: var(--green-300);
 }
 
